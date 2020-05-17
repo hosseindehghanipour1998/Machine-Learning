@@ -61,6 +61,6 @@ Ex : cd \d G:/GitRepository/Machine-Learning/
 
 
 # License
-This repository is released under [MIT License](https://opensource.org/licenses/MIT). To put it in a nutshell, This means that you can use the source codes in any opensource projects or contributions. Attribution is not mandatory but appreciated.
+This repository is released under [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0). To put it in a nutshell, This means that you can use the source codes in any opensource projects or contributions. Attribution is not mandatory but appreciated.
 
 ***To remove all barriers in the way of science.***
