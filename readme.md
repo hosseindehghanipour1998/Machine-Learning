@@ -1,7 +1,11 @@
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 # Introduction to Jupyter Notebook
 
 
 ## Build a Conda Environment
+
+
 
 ## How To Open Jupyter Notebook
 - Firstly you should build a `Conda Environment`
@@ -15,6 +19,12 @@ Ex : cd \d G:/GitRepository/Machine-Learning/
 - Acitvate _Anaconda Environment_ simply by typing : `$ conda activate [environmentName]`
   - If you don't specifictly name the `[environmentName]` name , it will automatically open the base environment.
 - Open Jupyter Notebook : `$ jupyter notebook`
+
+
+
+<hr>
+
+
 
 ## Jupyter Guide
 
@@ -44,3 +54,13 @@ Ex : cd \d G:/GitRepository/Machine-Learning/
 
 ##### Auto Complete
 - Only `Tab` ...  push multiple times to show the options.
+
+
+
+<hr>
+
+
+# License
+This repository is released under [MIT License](https://opensource.org/licenses/MIT). To put it in a nutshell, This means that you can use the source codes in any opensource projects or contributions. Attribution is not mandatory but appreciated.
+
+***To remove all barriers in the way of science.***
