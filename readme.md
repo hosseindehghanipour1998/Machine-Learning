@@ -4,8 +4,21 @@
 
 
 ## Build a Conda Environment
+Our default _base_ is where we have installed _Anaconda_.
 
+- Go to the directory you wish to create your environment using _Terminal_.
+  - `cd <YourPath>`
+  - `conda create --prefix ./env <tools You need>`
+  - `conda install <your tool>`
 
+As an Example :
+```
+$ cd \d G:/GitRepositories/NewEnvironment
+$ conda create --prefix ./env pandas matplotlib numpy scikit-Learn
+$ conda activate
+$ conda install jupyter
+
+```
 
 ## How To Open Jupyter Notebook
 - Firstly you should build a `Conda Environment`
