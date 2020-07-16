@@ -42,6 +42,16 @@ $ jupyter notebook
 ```
 
 
+## Summary
+```
+$ cd /d G:\GitRepositories\NewEnvironment
+$ conda create --prefix ./env pandas matplotlib numpy scikit-Learn
+$ conda activate
+$ conda install jupyter
+$ jupyter notebook
+```
+
+
 <hr>
 
 
