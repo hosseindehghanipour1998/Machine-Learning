@@ -34,6 +34,12 @@ Ex : cd \d G:/GitRepository/Machine-Learning/
   - You can see the existing environments by simply typing `conda info --env`
 - Open Jupyter Notebook : `$ jupyter notebook`
 
+As an Example :
+```
+$ cd \d G:/GitRepository/Machine-Learning/
+$ conda activate RegEnv
+$ jupyter notebook
+```
 
 
 <hr>
