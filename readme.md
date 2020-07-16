@@ -31,6 +31,7 @@ Ex : cd \d G:/GitRepository/Machine-Learning/
 ```
 - Acitvate _Anaconda Environment_ simply by typing : `$ conda activate [environmentName]`
   - If you don't specifictly name the `[environmentName]` name , it will automatically open the base environment.
+  - You can see the existing environments by simply typing `conda info --env`
 - Open Jupyter Notebook : `$ jupyter notebook`
 
 
