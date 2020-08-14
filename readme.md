@@ -29,8 +29,8 @@ $ conda install jupyter
 cd \d <path>
 Ex : cd \d G:/GitRepository/Machine-Learning/
 ```
-- Acitvate _Anaconda Environment_ simply by typing : `$ conda activate [environmentName]`
-  - If you don't specifictly name the `[environmentName]` name , it will automatically open the base environment.
+- Activate _Anaconda Environment_ simply by typing : `$ conda activate [environmentName]`
+  - If you don't specifically name the `[environmentName]` name , it will automatically open the base environment.
 - Open Jupyter Notebook : `$ jupyter notebook`
 
 
