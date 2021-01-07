@@ -13,7 +13,7 @@ Our default _base_ is where we have installed _Anaconda_.
 
 As an Example :
 ```
-$ cd \d G:/GitRepositories/NewEnvironment
+$ cd /d G:\GitRepositories\NewEnvironment
 $ conda create --prefix ./env pandas matplotlib numpy scikit-Learn
 $ conda activate
 $ conda install jupyter
@@ -26,13 +26,35 @@ $ conda install jupyter
 - `cd` to the directory that contains the built _environment_.
 
 ```
-cd \d <path>
-Ex : cd \d G:/GitRepository/Machine-Learning/
+cd /d <path>
+Ex : cd /d G:\GitRepository\Machine-Learning\
 ```
+<<<<<<< HEAD
 - Activate _Anaconda Environment_ simply by typing : `$ conda activate [environmentName]`
   - If you don't specifically name the `[environmentName]` name , it will automatically open the base environment.
+=======
+- Acitvate _Anaconda Environment_ simply by typing : `$ conda activate [environmentName]`
+  - If you don't specifictly name the `[environmentName]` name , it will automatically open the base environment.
+  - You can see the existing environments by simply typing `conda info --env`
+>>>>>>> 9709b90ad3bd01429af240a6e5528dee76060347
 - Open Jupyter Notebook : `$ jupyter notebook`
 
+As an Example :
+```
+$ cd /d G:\GitRepository\Machine-Learning/
+$ conda activate RegEnv
+$ jupyter notebook
+```
+
+
+## Summary
+```
+$ cd /d G:\GitRepositories\NewEnvironment
+$ conda create --prefix ./env pandas matplotlib numpy scikit-Learn
+$ conda activate
+$ conda install jupyter
+$ jupyter notebook
+```
 
 
 <hr>
