@@ -22,6 +22,18 @@ import datetime
 # Visualize the Data set
 
 
+def fileIO(filePath):
+    
+    # Read
+    f = open(filePath, "r+")
+    counter = int(f.read())
+    f.close()
+    # Reset and Write
+    f = open(filePath, "w+")
+    f.write(str(counter+1))
+    f.close()
+    
+    return counter
 
 
 
@@ -370,7 +382,7 @@ class MyMachine:
         self.labels_csv = pd.read_csv(CSVPath)
         self.__train_data = None
         self.__val_data = None
-        
+        self.__model_fileName_counter = "Counter.txt"
         # ----------------------- Initializer ------------
         self.__trainCoulumnName = None
         self.__valuesCoulumnName = None
@@ -434,9 +446,10 @@ class MyMachine:
             print(f"Loss: {results[0]} | Accuracy: {results[1]}")
             
             print("=========== SAVING MODEL ====================")
-            modelName = input("Model Name : ")
+            
+            modelCounter = fileIO(str(self.__modelsSavingPath) + str(self.__model_fileName_counter))
             evaluationFactors = "_LOSS_" + str(results[0]) + "_ACCURACY_" + str(results[1]) + "_IMG_NO_" + str(self.__training_images_number)
-            modelName = str(modelName) + evaluationFactors
+            modelName = "ModelNO_" + str(modelCounter) + evaluationFactors
             self.__save_model(self.__model,self.__modelsSavingPath,modelName)
         else:
             print("You must Call the Initializer First.")
