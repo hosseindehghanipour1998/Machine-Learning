@@ -13,6 +13,7 @@ from IPython.display import Image
 import os
 import matplotlib.pyplot as plt
 import datetime
+
 # Check Version and Availability
 
 # Import Files labels
@@ -25,18 +26,14 @@ import datetime
 
 
 class MyMachine:
-    IMAGE_SIZE = 224
-    BATCH_SIZE = 32
-    MODEL_URL = "https://tfhub.dev/google/imagenet/mobilenet_v2_130_224/classification/4"
-    NUM_EPOCHS = 100
+    
+
     
     # -------------- Public Methods ----------------------
-    def checkVersions():
-        print("=============")
+    def __checkVersions(self):
         print("TF Version :",tf.__version__) # Prints the Version of Tensor Flow we have installed on our system.
         print("TF Hub Version :",hub.__version__)
         print("GPU : " , "Available" if tf.config.list_physical_devices("GPU") else "Not Available")
-        print("=============")
 
     
 
@@ -101,7 +98,7 @@ class MyMachine:
         
     def __checkFilesNumbersMatch(self):
         
-        if ( len(os.listdir(self.trainPicturesPath)) == len(self.filesNames) ) :
+        if ( len(os.listdir(self.__trainPicturesPath)) == len(self.filesNames) ) :
             print("Train-Set images Match !")
         else :
             print("rain-Set images Don't Match !")
@@ -161,11 +158,12 @@ class MyMachine:
     
     # we will talk about this number later. 224*224
 
-    def __preporcessImage(imagePath, imgSize=IMAGE_SIZE):
+    def __preporcessImage(self,imagePath):
       '''
       Takes an image file path and turns the image into tensor.
       '''
       # Read an image file
+      imgSize = self.IMAGE_SIZE
       image = tf.io.read_file(imagePath) # reads a file and turns it into machine code string
       # turn the Jpeg into numerical tensor with 3 color channels (RGB between 0-255)
       image = tf.image.decode_jpeg(image,channels=3)
@@ -178,12 +176,13 @@ class MyMachine:
       return image
         
     def __get_image_label(self,image_path, label):
-        image = self.__preporcessImage(imagePath=image_path)
+
+        image = self.__preporcessImage(image_path)
         return image,label    
   
     
       
-    def __create_data_batches(self,X, y=None, batch_size=BATCH_SIZE, valid_data=False, test_data = False):
+    def __create_data_batches(self, X, batch_size, y=None, valid_data=False, test_data = False):
       """
       1 - Creates batches out of data
       2 - shuffles the data but doesn't shuffle if it is validation data. Only train data should be shuffled
@@ -192,7 +191,9 @@ class MyMachine:
       # If 
       if (test_data):
         print("Creating Test Batches")
+        
         data = tf.data.Dataset.from_tensor_slices(tf.constant(X))
+        
         data_batch = data.map(self.__preporcessImage).batch(batch_size)
         return data_batch
         
@@ -201,14 +202,16 @@ class MyMachine:
         data = tf.data.Dataset.from_tensor_slices((tf.constant(X),tf.constant(y)))
         data_batch = data.map(self.__get_image_label).batch(batch_size)
         return data_batch
+    
       else: # A training Set 
         print("Createing a Training Set Batch")
         # Turn filePaths and Labels into Tensors
         data = tf.data.Dataset.from_tensor_slices((tf.constant(X),tf.constant(y)))
         # Shuffling the pathNames and Labels before mapping the image_process()
         # we shuffle before procesign because shuffling the image takes a longer time
+        print
         data = data.shuffle(buffer_size=len(X))
-    
+        
         data_batch = data.map(self.__get_image_label).batch(batch_size)
         return data_batch
     
@@ -230,19 +233,19 @@ class MyMachine:
         # Display an image 
         plt.imshow(images[i])
         # Add the image label as the title
-        plt.title(self.unique_values[labels[i].argmax()])
+        plt.title(self.__unique_values[labels[i].argmax()])
         # Turn the grid lines off
         plt.axis("off")
 
         
     # Create a function which builds a Keras model
     
-    def __create_model(self, input_shape, output_shape, model_url=MODEL_URL):
-      print("Building model with:", self.MODEL_URL)
+    def __create_model(self, inputShape, output_shape, model_url):
+      print("Building model with:", model_url)
     
       # Setup the model layers
       model = tf.keras.Sequential([
-        hub.KerasLayer(self.MODEL_URL), # Layer 1 (input layer)
+        hub.KerasLayer(model_url), # Layer 1 (input layer)
         # gets our pre-defined model and uses it as the first layer
         tf.keras.layers.Dense(units=output_shape, activation="softmax") # Layer 2 (output layer)
         # For binary classification the Activation is Sigmoid but for Multi-Class classification its Softmax.
@@ -259,21 +262,22 @@ class MyMachine:
       )
     
       # Build the model
-      model.build(input_shape)
+      model.build(inputShape)
     
       return model
 
     def getModelSummary(self):
         try:
-            if(self.model != None):
-                print(self.model.summary())
+            if(self.__model != None):
+                print("Model Summary:")
+                self.__model.summary()
         except:
             print("No models Detected.")
 
 
 
     # Create a function to build a TensorBoard callback
-    def __create_tensorboard_callback(callbackLogsPath):
+    def __create_tensorboard_callback(self,callbackLogsPath):
       '''
       This function creates a call-back, which will help us visualaize and log the process of learning by our model.
       '''
@@ -284,27 +288,38 @@ class MyMachine:
                             datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
       return tf.keras.callbacks.TensorBoard(logdir)  
   
-    def __train_model(self, earlyStopping, epochs_num = NUM_EPOCHS):
+    def __train_model(self, earlyStopping, inputShape, outputShape, modelURL, epochs_num, callBackLogsPath ):
       """
       Trains a given model and returns the trained version.
       """
       # Create a model
-      model = self.__create_model() # We have already implemented it.
+      model = self.__create_model(inputShape, outputShape, modelURL) # We have already implemented it.
     
       # Create new TensorBoard session everytime we train a model
-      tensorboard = self.__create_tensorboard_callback() # we have already implemented it.
+      tensorboard = self.__create_tensorboard_callback(callBackLogsPath) # we have already implemented it.
     
       # Fit the model to the data passing it the callbacks we created
+      
+      # Running this piece of code on GPU instead of CPU
+      from numba import jit, cuda
+      #jit(target ="cuda")
+      from timeit import default_timer as timer
+      start = timer()
+      
+      print(self.__train_data)
       model.fit(x=self.__train_data,
                 epochs=epochs_num,
                 validation_data=self.__val_data,
                 validation_freq=1, # how often we want to test the patterns? how many epochs we are validating?
                 callbacks=[tensorboard, earlyStopping]) # tensorboard and early_stopping are defined by us.
+      
+      
+      print(f"Training Time: {timer()-start}")
       # Return the fitted model
       return model         
   
     
-    def setImportantVariables(self,
+    def initializer(self,
                               trainCoulumnName,
                               valuesColumnName,
                               filesType, 
@@ -328,22 +343,30 @@ class MyMachine:
         self.__randomState = randomState
         self.__callbackLogsPath = callbackLogsPath
         self.__modelsSavingPath = modelsSavingPath
-        
+        self.__InitializedCalled = True    
         return 0
         
-    def __save_model(model, savedModelsPathDir, modeName=None):
+    def __save_model(self,model, savedModelsPathDir, modelName=None):
       """
       Saves a given model in a models directory and appends a suffix (string).
       """
       # Create a model directory pathname with current time
-      modeldir = os.path.join(savedModelsPathDir,datetime.datetime.now().strftime("%Y%m%d-%H%M%s"))
-      model_path = modeldir + "-" + modeName + ".h5" # save format of model
+      modeldir = "" #os.path.join(savedModelsPathDir,datetime.datetime.now().strftime("%Y%m%d-%H%M%s"))
+      model_path = savedModelsPathDir + "" + modelName + ".h5" # save format of model
       print(f"Saving model to: {model_path}...")
       model.save(model_path)
       print(f"Model Saved in: {model_path}")
       return model_path   
     
     def __init__(self, CSVPath):
+        
+        
+        # Global Vars
+        self.IMAGE_SIZE = 224
+        self.BATCH_SIZE = 32
+        self.MODEL_URL = "https://tfhub.dev/google/imagenet/mobilenet_v2_130_224/classification/4"
+        self.NUM_EPOCHS = 100
+        
         self.labels_csv = pd.read_csv(CSVPath)
         self.__train_data = None
         self.__val_data = None
@@ -359,6 +382,7 @@ class MyMachine:
         self.__randomState = None
         self.__callbackLogsPath = None
         self.__modelsSavingPath = None
+
         # ----------------- Inside Methods ---------------
         self.X = None
         self.y = None
@@ -367,41 +391,55 @@ class MyMachine:
         self.trainingImagesNames = []
         self.__unique_values = []
         self.__model = None
-    
+        # -------------------- Sequence Control Variables
+        self.__InitializedCalled = False
     
     def Train(self):
-        self.__createFilesNames(self, self.__trainCoulumnName, self.trainPicturesPath , self.__filesType)#Fills: self.filesNames 
-        self.__checkFilesNumbersMatch(self)
-        self.__fetchImagesNames(self, self.trainPicturesPath, self.__testPicturesPath)#Fills: self.testImagesNames, self.trainingImagesNames
-        x_train, x_val, y_train, y_val = self.__createAndSplitDataSets(self, self.__valuesCoulumnName, self.__training_images_number, self.__testPercentage, self.__randomState)
-        #Fills: self.__unique_values, self.X, self.y
-        train_data = self.__create_data_batches(x_train,y_train)
-        val_data = self.__create_data_batches(x_val,y_val,valid_data=True)
-        
-        ## Visualize the Training and Validation Images
-        train_images, train_labels = next(train_data.as_numpy_iterator())
-        self.__show_25_images(train_images, train_labels)
-        val_images, val_labels = next(val_data.as_numpy_iterator())
-        self.__show_25_images(val_images, val_labels)
-        
-        INPUT_SHAPE = [None, MyMachine.IMG_SIZE,  MyMachine.IMG_SIZE, 3]
-        OUTPUT_SHAPE = len(self.__unique_values)
-        self.__model = self.__create_model(self, INPUT_SHAPE, OUTPUT_SHAPE, MyMachine.MODEL_URL)#Fills: self.__model
-        self.getModelSummary() #Prints model's summary information.
-        self.__create_tensorboard_callback(self.__callbackLogsPath)
-        early_stopping = tf.keras.callbacks.EarlyStopping(monitor="val_accuracy", patience=3)
-        
-        print("=====================================================")
-        print("Training has Started...")
-        self.__train_model(self, early_stopping, MyMachine.NUM_EPOCHS)
-        print("Training Completed")
-        print("=====================================================")
-        print("Evaluation : ")
-        results = self.__model.evaluate(x_val, y_val, MyMachine.BATCH_SIZE)
-        print(f"Loss: {results[0]} | Accuracy: {results[1]}")
-        print("=====================================================")
-        modelName = input("Model Name : ")
-        self.__save_model(self.__modelsSavingPath,modelName)
+        if(self.__InitializedCalled):
+            print("=========== VERSION ====================")
+            self.__checkVersions()
+            
+            print("=========== PRE-PROCESSING ====================")
+            self.__createFilesNames(self.__trainCoulumnName , self.__trainPicturesPath, self.__filesType ) #Fills: self.filesNames 
+            self.__checkFilesNumbersMatch()
+            self.__fetchImagesNames( self.__trainPicturesPath, self.__testPicturesPath)#Fills: self.testImagesNames, self.trainingImagesNames
+            x_train, x_val, y_train, y_val = self.__createAndSplitDataSets( self.__valuesCoulumnName, self.__training_images_number, self.__testPercentage, self.__randomState)
+            #Fills: self.__unique_values, self.X, self.y
+            self.__train_data = self.__create_data_batches(x_train,self.BATCH_SIZE,y_train)
+            self.__val_data = self.__create_data_batches(x_val,self.BATCH_SIZE,y_val,valid_data=True)
+            
+            print("=========== VISUALIZING DATA ====================")
+            ## Visualize the Training and Validation Images
+            train_images, train_labels = next(self.__train_data.as_numpy_iterator())
+            self.__show_25_images(train_images, train_labels)
+            val_images, val_labels = next( self.__val_data.as_numpy_iterator())
+            self.__show_25_images(val_images, val_labels)
+            
+            INPUT_SHAPE = [None, self.IMAGE_SIZE, self.IMAGE_SIZE , 3]
+            OUTPUT_SHAPE = len(self.__unique_values)
+
+            self.__create_tensorboard_callback(self.__callbackLogsPath)
+            early_stopping = tf.keras.callbacks.EarlyStopping(monitor="val_accuracy", patience=3)
+            
+            print("=========== TRAINING  ====================")
+            print("Training has Started...")
+
+            self.__model = self.__train_model( early_stopping,  INPUT_SHAPE, OUTPUT_SHAPE, self.MODEL_URL,  self.NUM_EPOCHS, self.__callbackLogsPath)
+            self.getModelSummary() #Prints model's summary information.
+            print("Training Completed")
+            
+            print("=========== EVALUATING ====================")
+            print(f"Evaluation : {self.__model}")
+            results = ("NA","NA")#self.__model.evaluate(x_val, y_val, self.BATCH_SIZE)
+            print(f"Loss: {results[0]} | Accuracy: {results[1]}")
+            
+            print("=========== SAVING MODEL ====================")
+            modelName = input("Model Name : ")
+            evaluationFactors = "_LOSS_" + str(results[0]) + "_ACCURACY_" + str(results[1]) + "_IMG_NO_" + str(self.__training_images_number)
+            modelName = str(modelName) + evaluationFactors
+            self.__save_model(self.__model,self.__modelsSavingPath,modelName)
+        else:
+            print("You must Call the Initializer First.")
     
 
         
