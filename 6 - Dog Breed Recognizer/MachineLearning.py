@@ -318,15 +318,14 @@ class MyMachine:
       from timeit import default_timer as timer
       start = timer()
       
-      print(self.__train_data)
+      #print(self.__train_data)
       model.fit(x=self.__train_data,
                 epochs=epochs_num,
                 validation_data=self.__val_data,
                 validation_freq=1, # how often we want to test the patterns? how many epochs we are validating?
                 callbacks=[tensorboard, earlyStopping]) # tensorboard and early_stopping are defined by us.
       
-      
-      print(f"Training Time: {timer()-start}")
+      print(f"Training Time: {round(timer()-start)}")
       # Return the fitted model
       return model         
   
@@ -442,13 +441,15 @@ class MyMachine:
             
             print("=========== EVALUATING ====================")
             print(f"Evaluation : {self.__model}")
-            results = ("NA","NA")#self.__model.evaluate(x_val, y_val, self.BATCH_SIZE)
-            print(f"Loss: {results[0]} | Accuracy: {results[1]}")
+            results = self.__model.evaluate(self.__val_data)
+            formatted_loss = "{:.2f}".format(results[0])
+            formatted_accuracy = "{:.2f}".format(results[1])
+            print(f"Loss: {formatted_loss} | Accuracy: {formatted_accuracy}")
             
             print("=========== SAVING MODEL ====================")
             
             modelCounter = fileIO(str(self.__modelsSavingPath) + str(self.__model_fileName_counter))
-            evaluationFactors = "_LOSS_" + str(results[0]) + "_ACCURACY_" + str(results[1]) + "_IMG_NO_" + str(self.__training_images_number)
+            evaluationFactors = "_LOSS_" + str(formatted_loss) + "_ACCURACY_" + str(formatted_accuracy) + "_IMG_NO_" + str(self.__training_images_number)
             modelName = "ModelNO_" + str(modelCounter) + evaluationFactors
             self.__save_model(self.__model,self.__modelsSavingPath,modelName)
         else:
