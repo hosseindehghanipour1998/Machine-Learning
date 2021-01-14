@@ -39,7 +39,7 @@ def Main():
         machine.Train()
     else:
         print("Recognizing...")
-        imgPath = "6.jpg"
+        imgPath = "7.jpg"
         # Predict an Image
         modelPath = "C:\\Users\\hosse\\Desktop\\Dog Breed Project\\Models\\ModelNO_10_LOSS_0.74_ACCURACY_0.82_IMG_NO_12000.h5" 
         CSVLabelsPath = "./Data/labels.csv"
